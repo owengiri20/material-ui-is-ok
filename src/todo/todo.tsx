@@ -24,7 +24,7 @@ interface TodoItem {
 	isDone: boolean
 }
 
-export const Main = () => {
+export const Todo = () => {
 	const [addModalOpen, setAddModalOpen] = React.useState(false)
 	const [listState, setListState] = React.useState<TodoItem[]>([])
 
@@ -91,8 +91,6 @@ export const Main = () => {
 		</>
 	)
 }
-
-export default Main
 
 const useStyles = makeStyles((theme) => ({
 	root: {

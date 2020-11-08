@@ -5,7 +5,7 @@ import { Route, Switch } from "react-router-dom"
 import "./App.css"
 import { AppWrapper } from "./common/drawbar"
 import { Home } from "./common/pages/home"
-import { Main as Todo } from "./todo/main"
+import { Todo } from "./todo/todo"
 
 const theme = createMuiTheme({
 	palette: {},
