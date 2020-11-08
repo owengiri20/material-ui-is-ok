@@ -1,6 +1,8 @@
 import { Container, Paper, Typography } from "@material-ui/core"
 import { makeStyles } from "@material-ui/core/styles"
+import { link } from "fs"
 import React from "react"
+import { useHistory } from "react-router-dom"
 
 export const Home = () => {
 	const useStyles = makeStyles({
@@ -30,8 +32,10 @@ const ProjectCard = (props: ProjectItem) => {
 
 	const classes = useStyles()
 
+	const history = useHistory()
+
 	return (
-		<Paper className={classes.card}>
+		<Paper onClick={() => history.push(`${props.link}`)} className={classes.card}>
 			<Typography>{props.name}</Typography>
 		</Paper>
 	)
@@ -40,7 +44,6 @@ const ProjectCard = (props: ProjectItem) => {
 const ProjectCardList = () => {
 	const useStyles = makeStyles({
 		containter: {
-			// height: "80vh",
 			width: "90%",
 			display: "flex",
 			flexWrap: "wrap",
