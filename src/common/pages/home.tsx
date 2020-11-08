@@ -23,15 +23,24 @@ export const Home = () => {
 const ProjectCard = (props: ProjectItem) => {
 	const useStyles = makeStyles({
 		card: {
+			display: "flex",
+			justifyContent: "center",
+			alignItems: "center",
 			height: "200px",
 			margin: "10px",
 			width: "30%",
 			padding: "10px",
+			transition: ".2s ease",
+
+			"&:hover": {
+				cursor: "pointer",
+				transform: "scale(.97)",
+				transition: ".2s ease",
+			},
 		},
 	})
 
 	const classes = useStyles()
-
 	const history = useHistory()
 
 	return (
@@ -69,26 +78,6 @@ interface ProjectItem {
 }
 
 const projs: ProjectItem[] = [
-	{
-		name: "Todo",
-		link: "/todo",
-		src: "",
-	},
-	{
-		name: "Todo",
-		link: "/todo",
-		src: "",
-	},
-	{
-		name: "Todo",
-		link: "/todo",
-		src: "",
-	},
-	{
-		name: "Todo",
-		link: "/todo",
-		src: "",
-	},
 	{
 		name: "Todo",
 		link: "/todo",
