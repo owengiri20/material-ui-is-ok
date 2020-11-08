@@ -1,26 +1,30 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { createMuiTheme, ThemeProvider } from "@material-ui/core"
+import Container from "@material-ui/core/Container"
+import React from "react"
+import { Route, Switch } from "react-router-dom"
+import "./App.css"
+import { AppWrapper } from "./common/drawbar"
+import { Home } from "./common/pages/home"
+import { Main as Todo } from "./todo/main"
 
+const theme = createMuiTheme({
+	palette: {},
+})
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+	return (
+		<ThemeProvider theme={theme}>
+			<AppWrapper>
+				<Container maxWidth={"xl"} style={{ marginTop: "20px" }}>
+					<Switch>
+						<Route path="/" component={Home} exact />
+						<Route path="/todo" component={Todo} exact />
+						{/* <Route path="/about" component={About} />
+						<Route path="/shop" component={Shop} /> */}
+					</Switch>
+				</Container>
+			</AppWrapper>
+		</ThemeProvider>
+	)
 }
 
-export default App;
+export default App
