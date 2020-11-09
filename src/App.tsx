@@ -5,6 +5,7 @@ import { Route, Switch } from "react-router-dom"
 import "./App.css"
 import { AppWrapper } from "./common/appWrapper"
 import { Home } from "./common/pages/home"
+import { Peoples } from "./peoples/peoples"
 import { Todo } from "./todo/todo"
 
 const theme = createMuiTheme({
@@ -18,8 +19,7 @@ function App() {
 					<Switch>
 						<Route path="/" component={Home} exact />
 						<Route path="/todo" component={Todo} exact />
-						{/* <Route path="/about" component={About} />
-						<Route path="/shop" component={Shop} /> */}
+						<Route path="/peoples" component={Peoples} exact />
 					</Switch>
 				</Container>
 			</AppWrapper>

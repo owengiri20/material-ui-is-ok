@@ -83,4 +83,9 @@ const projs: ProjectItem[] = [
 		link: "/todo",
 		src: "",
 	},
+	{
+		name: "peoples",
+		link: "/peoples",
+		src: "",
+	},
 ]
