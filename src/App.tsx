@@ -7,6 +7,7 @@ import { AppWrapper } from "./common/appWrapper"
 import { Home } from "./common/pages/home"
 import { Peoples } from "./peoples/peoples"
 import { Todo } from "./todo/todo"
+import { Typer } from "./typing-game/typer"
 
 const theme = createMuiTheme({
 	palette: {},
@@ -20,6 +21,7 @@ function App() {
 						<Route path="/" component={Home} exact />
 						<Route path="/todo" component={Todo} exact />
 						<Route path="/peoples" component={Peoples} exact />
+						<Route path="/typer" component={Typer} exact />
 					</Switch>
 				</Container>
 			</AppWrapper>
