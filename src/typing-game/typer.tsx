@@ -5,7 +5,10 @@ interface Props {
 	ticker: number
 }
 
-const words = "hi my name is owen".split(" ")
+const words = `Go is expressive, concise, clean, and efficient. Its concurrency mechanisms make it easy to write programs that get the most out of multicore and networked machines, while its novel type system enables flexible and modular program construction. Go compiles quickly to machine code yet has the convenience of garbage collection and the power of run-time reflection. It's a fast, statically typed, compiled language that feels like a dynamically typed, interpreted language. Go is expressive, concise, clean, and efficient. Its concurrency mechanisms make it easy to write programs that get the most out of multicore and networked machines, while its novel type system enables flexible and modular program construction. Go compiles quickly to machine code yet has the convenience of garbage collection and the power of run-time reflection. It's a fast, statically typed, compiled language that feels like a dynamically typed, interpreted language`.split(
+	" ",
+)
+
 export const Typer = (props: Props) => {
 	const {} = props
 	const useStyles = makeStyles({
@@ -29,8 +32,13 @@ export const Typer = (props: Props) => {
 	const [finish, setFinish] = React.useState(false)
 	const [start, setStart] = React.useState(false)
 	const [wpm, setWpm] = React.useState(0)
-	const [seconds, setSeconds] = React.useState(500)
+	const [seconds, setSeconds] = React.useState(60)
 	const [correctChars, setCorrectChars] = React.useState(0)
+	const [wrongChars, setWrongChars] = React.useState(0)
+
+	const [correctWords, setCorrectWords] = React.useState(0)
+
+	const [wrongWords, setWrongWords] = React.useState(0)
 
 	React.useEffect(() => {
 		if (!start) return
@@ -44,65 +52,95 @@ export const Typer = (props: Props) => {
 	})
 
 	const handleRestart = () => {
-		setIdx(0)
-		setIColour("black")
-		setWord("")
-		setFinish(false)
-		setStart(false)
-		setSeconds(60)
+		window.location.reload()
+		// setIdx(0)
+		// setIColour("black")
+		// setWord("")
+		// setFinish(false)
+		// setStart(false)
+		// setSeconds(60)
 	}
 
 	const handleKeyPress = (key: any) => {
-		console.log("yoyo")
-
-		console.log(key)
-
 		const currWord = words[idx]
 		if (!start) {
 			setStart(true)
 		}
 
-		if (key.code === "Space") {
-			if (currWord === word) {
+		const currChar = currWord[charIdx]
+		console.log("logging char index---------", charIdx)
+		// console.log("logging word---------", currChar)
+
+		console.log("logging char---------", currChar)
+		setCharIdx(charIdx + 1)
+
+		if (currChar) {
+			if (currChar === key.key) {
 				setIColour("green")
 			} else {
 				setIColour("red")
 			}
+		}
+
+		if (key.code === "Space") {
+			console.log("hit space -------")
+
 			setWord("")
 			setIdx(idx + 1)
+			setCharIdx(0)
+			if (currWord === word) {
+				setCorrectWords(correctWords + 1)
+			} else {
+				setWrongWords(wrongWords + 1)
+			}
+
 			return
 		}
-
-		// characters
-		// if (word.length === 0) return
-		// if (key.code && key.code === "Backspace") {
-		// 	console.log("backspace")
-		// }
-
-		const currChar = currWord[charIdx]
-		console.log("logging word---------", currChar)
-		setCharIdx(charIdx + 1)
-		if (currChar === key.key) {
-			setIColour("green")
-		} else {
-			setIColour("red")
-		}
-
-		// setCharIdx(charIdx + 1)
-		// console.log("logging word---------", word)
-		// console.log("logging partial word---------", currWord[charIdx])
 	}
 
 	const handleBackSpace = (key: any) => {
 		// characters
 		if (word.length === 0) return
 		if (key.code && key.code === "Backspace") {
+			if (charIdx === 0) return
+			setCharIdx(charIdx - 1)
 			console.log("backspace")
 		}
 	}
 
 	const calcWPM = () => {
 		// idx
+		return (correctWords / 60) * 60
+	}
+
+	const getResult = (wpm: number) => {
+		let label = ""
+		if (wpm < 30) {
+			label = "shit"
+		}
+		if (wpm >= 30 && wpm < 50) {
+			label = "not bad"
+		}
+		if (wpm >= 50 && wpm < 70) {
+			label = "above average"
+		}
+		if (wpm >= 70 && wpm < 90) {
+			label = "quick boi"
+		}
+
+		if (wpm >= 90 && wpm < 110) {
+			label = "you're pretty good"
+		}
+
+		if (wpm >= 110 && wpm < 130) {
+			label = "suuuuper fast"
+		}
+
+		if (wpm >= 130) {
+			label = "stop cheating"
+		}
+
+		return <Typography variant="h5">result: {label}</Typography>
 	}
 
 	return (
@@ -113,7 +151,7 @@ export const Typer = (props: Props) => {
 					<div className={classes.typingArea}>
 						<Typography style={{ fontSize: "20px" }} variant="subtitle1">
 							{words.map((w, i) => (
-								<span key={i}>{` ${w} `}</span>
+								<span style={{ backgroundColor: i === idx ? "yellow" : "" }} key={i}>{` ${w} `}</span>
 							))}
 						</Typography>
 					</div>
@@ -131,11 +169,21 @@ export const Typer = (props: Props) => {
 					<div className={classes.indicator} style={{ backgroundColor: iColour }}></div>
 					<div>
 						<Typography variant="h3">{seconds}</Typography>
+						<Typography variant="subtitle1">correct words: {correctWords}</Typography>
+						<Typography variant="subtitle1">wrong words: {wrongWords}</Typography>
 					</div>
 				</>
 			) : (
 				<div>
-					<Typography variant="h2">finish</Typography>
+					<Typography variant="h4">finish</Typography>
+					<Typography variant="h4">wpm: {calcWPM()} (not so accurate at the moment) </Typography>
+					<Typography variant="h4">correct words: {correctWords}</Typography>
+					<Typography variant="h4">wrong words: {wrongWords}</Typography>
+
+					<hr />
+
+					{getResult(calcWPM())}
+
 					<Button variant="contained" color="primary" onClick={handleRestart}>
 						Restart
 					</Button>
