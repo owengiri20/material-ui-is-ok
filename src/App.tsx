@@ -7,7 +7,7 @@ import { AppWrapper } from "./common/appWrapper"
 import { Home } from "./common/pages/home"
 import { Peoples } from "./peoples/peoples"
 import { Todo } from "./todo/todo"
-import { Typer } from "./typing-game/typer"
+import { TyperWrapper as Typer } from "./typing-game/typer"
 
 const theme = createMuiTheme({
 	palette: {},
