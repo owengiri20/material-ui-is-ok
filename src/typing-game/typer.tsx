@@ -1,13 +1,21 @@
 import { Button, Container, makeStyles, Typography } from "@material-ui/core"
 import React from "react"
 
+const j = require("./words.json")
+
 interface Props {
 	ticker: number
 }
 
-const words = `Go is expressive, concise, clean, and efficient. Its concurrency mechanisms make it easy to write programs that get the most out of multicore and networked machines, while its novel type system enables flexible and modular program construction. Go compiles quickly to machine code yet has the convenience of garbage collection and the power of run-time reflection. It's a fast, statically typed, compiled language that feels like a dynamically typed, interpreted language. Go is expressive, concise, clean, and efficient. Its concurrency mechanisms make it easy to write programs that get the most out of multicore and networked machines, while its novel type system enables flexible and modular program construction. Go compiles quickly to machine code yet has the convenience of garbage collection and the power of run-time reflection. It's a fast, statically typed, compiled language that feels like a dynamically typed, interpreted language`.split(
-	" ",
-)
+interface ModWord {
+	word: string
+	wRef: React.RefObject<HTMLSpanElement>
+}
+
+const words: string[] = j.split("|")
+const modWords: ModWord[] = words.map((w) => ({ word: w, wRef: React.createRef() }))
+
+// const words = wordsArr
 
 export const Typer = (props: Props) => {
 	const {} = props
@@ -17,6 +25,9 @@ export const Typer = (props: Props) => {
 			margin: "20px 0",
 			border: "1px solid",
 			padding: "10px",
+			maxHeight: "200px",
+			overflowY: "auto",
+			fontSize: "20px",
 		},
 
 		textAreaStyles: { width: "100%", fontSize: "20px", padding: "10px" },
@@ -46,19 +57,11 @@ export const Typer = (props: Props) => {
 			setTimeout(() => setSeconds(seconds - 1), 1000)
 		} else {
 			setFinish(true)
-			// setSeconds('BOOOOM!');
-			console.log("boom")
 		}
 	})
 
 	const handleRestart = () => {
 		window.location.reload()
-		// setIdx(0)
-		// setIColour("black")
-		// setWord("")
-		// setFinish(false)
-		// setStart(false)
-		// setSeconds(60)
 	}
 
 	const handleKeyPress = (key: any) => {
@@ -69,7 +72,6 @@ export const Typer = (props: Props) => {
 
 		const currChar = currWord[charIdx]
 		console.log("logging char index---------", charIdx)
-		// console.log("logging word---------", currChar)
 
 		console.log("logging char---------", currChar)
 		setCharIdx(charIdx + 1)
@@ -84,11 +86,21 @@ export const Typer = (props: Props) => {
 
 		if (key.code === "Space") {
 			console.log("hit space -------")
-
 			setWord("")
 			setIdx(idx + 1)
 			setCharIdx(0)
 			if (currWord === word) {
+				console.log("------index", idx)
+				console.log("-------ref", modWords[idx].wRef!.current!.style.color)
+				// if (!modWords[idx] || !modWords[idx].wRef || !modWords[idx].wRef.current || modWords[idx].wRef.current == null) {
+				// 	return
+				// }
+				if (modWords[idx].wRef.current) {
+					console.log("----------------change to green")
+
+					modWords[idx].wRef.current!.style.color = "green"
+				}
+
 				setCorrectWords(correctWords + 1)
 			} else {
 				setWrongWords(wrongWords + 1)
@@ -150,8 +162,8 @@ export const Typer = (props: Props) => {
 					<Typography variant="h2">typing game</Typography>
 					<div className={classes.typingArea}>
 						<Typography style={{ fontSize: "20px" }} variant="subtitle1">
-							{words.map((w, i) => (
-								<span style={{ backgroundColor: i === idx ? "yellow" : "" }} key={i}>{` ${w} `}</span>
+							{modWords.map((w, i) => (
+								<span ref={w.wRef} style={{ color: i === idx ? iColour : "", fontSize: "20px" }} key={i}>{` ${w.word} `}</span>
 							))}
 						</Typography>
 					</div>
