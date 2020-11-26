@@ -2,3 +2,17 @@ a {
 	text-decoration: none;
 	color: unset;
 }
+
+#fuck::-webkit-scrollbar-track {
+	-webkit-box-shadow: transparent;
+	background-color: transparent;
+}
+
+#fuck::-webkit-scrollbar {
+	width: 6px;
+	background-color: transparent;
+}
+
+#fuck::-webkit-scrollbar-thumb {
+	background-color: transparent;
+}

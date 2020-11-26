@@ -14,7 +14,7 @@ const everyNth = (arr: number[], nth: number) => arr.filter((_, i) => i % nth ==
 const genWords = (): TestWord[] => {
 	const words: string[] = j.split("|")
 
-	const cutOffs = everyNth(Array.from(Array(words.length).keys()), 7)
+	const cutOffs = everyNth(Array.from(Array(words.length).keys()), 6)
 
 	const testWords: TestWord[] = words.map((w, i) => {
 		let c = false
@@ -38,6 +38,7 @@ export const Typer = (props: Props) => {
 			maxHeight: "200px",
 			overflowY: "auto",
 			fontSize: "20px",
+			textAlign: "center",
 		},
 
 		textAreaStyles: { width: "100%", fontSize: "20px", padding: "10px" },
@@ -212,7 +213,7 @@ export const Typer = (props: Props) => {
 						id=""
 						placeholder="type here"
 					></textarea>
-					<div className={classes.indicator} style={{ backgroundColor: iColour }}></div>
+					{/* <div className={classes.indicator} style={{ backgroundColor: iColour }}></div> */}
 					<div>
 						<Typography variant="h3">{seconds}</Typography>
 						<Typography variant="subtitle1">correct words: {correctWords}</Typography>
