@@ -3,19 +3,29 @@ import React from "react"
 
 const j = require("./words.json")
 
-interface Props {
-	ticker: number
-}
-
-interface ModWord {
+interface TestWord {
 	word: string
-	wRef: React.RefObject<HTMLSpanElement>
+	status: "correct" | "incorrect" | "eh"
+	cut: boolean
 }
 
-const words: string[] = j.split("|")
-const modWords: ModWord[] = words.map((w) => ({ word: w, wRef: React.createRef() }))
+const everyNth = (arr: number[], nth: number) => arr.filter((_, i) => i % nth === nth - 1)
 
-// const words = wordsArr
+const genWords = (): TestWord[] => {
+	const words: string[] = j.split("|")
+
+	const cutOffs = everyNth(Array.from(Array(words.length).keys()), 7)
+
+	const testWords: TestWord[] = words.map((w, i) => {
+		let c = false
+		if (cutOffs.includes(i)) {
+			c = true
+		}
+		return { word: w, status: "eh", cut: c }
+	})
+
+	return testWords
+}
 
 export const Typer = (props: Props) => {
 	const {} = props
@@ -42,13 +52,9 @@ export const Typer = (props: Props) => {
 	const [word, setWord] = React.useState<string>("")
 	const [finish, setFinish] = React.useState(false)
 	const [start, setStart] = React.useState(false)
-	const [wpm, setWpm] = React.useState(0)
 	const [seconds, setSeconds] = React.useState(60)
-	const [correctChars, setCorrectChars] = React.useState(0)
-	const [wrongChars, setWrongChars] = React.useState(0)
 
 	const [correctWords, setCorrectWords] = React.useState(0)
-
 	const [wrongWords, setWrongWords] = React.useState(0)
 
 	React.useEffect(() => {
@@ -65,15 +71,12 @@ export const Typer = (props: Props) => {
 	}
 
 	const handleKeyPress = (key: any) => {
-		const currWord = words[idx]
+		const currWord = props.yoyoWords[idx]
 		if (!start) {
 			setStart(true)
 		}
 
-		const currChar = currWord[charIdx]
-		console.log("logging char index---------", charIdx)
-
-		console.log("logging char---------", currChar)
+		const currChar = currWord.word[charIdx]
 		setCharIdx(charIdx + 1)
 
 		if (currChar) {
@@ -85,25 +88,35 @@ export const Typer = (props: Props) => {
 		}
 
 		if (key.code === "Space") {
-			console.log("hit space -------")
 			setWord("")
 			setIdx(idx + 1)
 			setCharIdx(0)
-			if (currWord === word) {
-				console.log("------index", idx)
-				console.log("-------ref", modWords[idx].wRef!.current!.style.color)
-				// if (!modWords[idx] || !modWords[idx].wRef || !modWords[idx].wRef.current || modWords[idx].wRef.current == null) {
-				// 	return
-				// }
-				if (modWords[idx].wRef.current) {
-					console.log("----------------change to green")
-
-					modWords[idx].wRef.current!.style.color = "green"
-				}
-
+			if (currWord.word === word) {
 				setCorrectWords(correctWords + 1)
+				props.setWords(
+					props.yoyoWords.map((w, i) => {
+						if (i === idx) {
+							return {
+								...w,
+								status: "correct",
+							}
+						}
+						return w
+					}),
+				)
 			} else {
 				setWrongWords(wrongWords + 1)
+				props.setWords(
+					props.yoyoWords.map((w, i) => {
+						if (i === idx) {
+							return {
+								...w,
+								status: "incorrect",
+							}
+						}
+						return w
+					}),
+				)
 			}
 
 			return
@@ -121,8 +134,13 @@ export const Typer = (props: Props) => {
 	}
 
 	const calcWPM = () => {
-		// idx
 		return (correctWords / 60) * 60
+	}
+
+	const getColour = (status: "correct" | "incorrect" | "eh") => {
+		if (status === "correct") return "green"
+		if (status === "incorrect") return "red"
+		if (status === "eh") return "black"
 	}
 
 	const getResult = (wpm: number) => {
@@ -155,15 +173,31 @@ export const Typer = (props: Props) => {
 		return <Typography variant="h5">result: {label}</Typography>
 	}
 
+	const textDisplayRef = React.useRef<HTMLDivElement>(null)
+
+	React.useEffect(() => {
+		if (idx === 0) return
+		const prevWord = props.yoyoWords[idx - 1]
+		let sss = document.getElementById("fuck")
+		if (sss && prevWord.cut) {
+			sss.scrollTop = props.scrollHeight
+			props.setScrollHeight(props.scrollHeight + 70)
+		}
+		console.log(prevWord.word)
+	}, [idx])
+
 	return (
 		<Container>
 			{!finish ? (
 				<>
 					<Typography variant="h2">typing game</Typography>
-					<div className={classes.typingArea}>
-						<Typography style={{ fontSize: "20px" }} variant="subtitle1">
-							{modWords.map((w, i) => (
-								<span ref={w.wRef} style={{ color: i === idx ? iColour : "", fontSize: "20px" }} key={i}>{` ${w.word} `}</span>
+					<div className={classes.typingArea} ref={textDisplayRef} id="fuck">
+						<Typography variant="subtitle1">
+							{props.yoyoWords.map((w, i) => (
+								<React.Fragment key={i}>
+									<span style={{ color: getColour(w.status), fontSize: "40px", fontWeight: idx === i ? "bold" : "unset" }} key={i}>{` ${w.word} `}</span>
+									{w.cut && <br />}
+								</React.Fragment>
 							))}
 						</Typography>
 					</div>
@@ -205,9 +239,17 @@ export const Typer = (props: Props) => {
 	)
 }
 
+interface Props {
+	yoyoWords: TestWord[]
+	setWords: (t: TestWord[]) => void
+
+	scrollHeight: number
+	setScrollHeight: (h: number) => void
+}
 export const TyperWrapper = (props: Props) => {
 	const {} = props
-	const [ticker, setTicker] = React.useState(0)
-	// setInterval(() => setTicker(ticker + 1), 1000)
-	return <Typer ticker={ticker} />
+	const [tWords, setTWords] = React.useState(genWords())
+	const [scrollHeight, setScrollHeight] = React.useState(0)
+
+	return <Typer scrollHeight={scrollHeight} setScrollHeight={setScrollHeight} yoyoWords={tWords} setWords={setTWords} />
 }
