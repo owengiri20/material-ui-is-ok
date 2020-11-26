@@ -196,7 +196,15 @@ export const Typer = (props: Props) => {
 						<Typography variant="subtitle1">
 							{props.yoyoWords.map((w, i) => (
 								<React.Fragment key={i}>
-									<span style={{ color: getColour(w.status), fontSize: "40px", fontWeight: idx === i ? "bold" : "unset" }} key={i}>{` ${w.word} `}</span>
+									<span
+										style={{
+											color: getColour(w.status),
+											textDecoration: idx === i ? "underline" : "unset",
+											fontSize: "40px",
+											fontWeight: idx === i ? "bold" : "unset",
+										}}
+										key={i}
+									>{` ${w.word} `}</span>
 									{w.cut && <br />}
 								</React.Fragment>
 							))}
