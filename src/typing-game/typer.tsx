@@ -1,6 +1,16 @@
-import { Button, Container, makeStyles, Typography } from "@material-ui/core"
+import { Button, Container, Typography } from "@material-ui/core"
 import React from "react"
+import { useHistory } from "react-router-dom"
+import { useStyles } from "./style"
 
+// disable scroll wheel
+window.addEventListener(
+	"wheel",
+	function (e) {
+		e.preventDefault()
+	},
+	{ passive: false },
+)
 const j = require("./words.json")
 
 interface TestWord {
@@ -10,13 +20,34 @@ interface TestWord {
 }
 // id of text display
 const DISPLAY_ID = "textDisplay"
+
 // creates an array of every "nth" number
 const everyNth = (arr: number[], nth: number) => arr.filter((_, i) => i % nth === nth - 1)
 
+const shuffle = (arr: string[]) => {
+	let currentIndex = arr.length,
+		temporaryValue,
+		randomIndex
+
+	// While there remain elements to shuffle...
+	while (0 !== currentIndex) {
+		// Pick a remaining element...
+		randomIndex = Math.floor(Math.random() * currentIndex)
+		currentIndex -= 1
+
+		// And swap it with the current element.
+		temporaryValue = arr[currentIndex]
+		arr[currentIndex] = arr[randomIndex]
+		arr[randomIndex] = temporaryValue
+	}
+
+	return arr
+}
+
 // generate list of words of json file
 const genWords = (): TestWord[] => {
-	const words: string[] = j.split("|")
-	const cutOffs = everyNth(Array.from(Array(words.length).keys()), 6)
+	const words: string[] = shuffle(j.split("|"))
+	const cutOffs = everyNth(Array.from(Array(words.length).keys()), 5)
 	const testWords: TestWord[] = words.map((w, i) => {
 		let c = false
 		if (cutOffs.includes(i)) {
@@ -29,28 +60,8 @@ const genWords = (): TestWord[] => {
 }
 
 export const Typer = (props: Props) => {
-	const {} = props
-	const useStyles = makeStyles({
-		indicator: { height: "60px", width: "60px" },
-		typingArea: {
-			margin: "20px 0",
-			paddingBottom: "15px",
-			padding: "10px",
-			maxHeight: "200px",
-			overflowY: "auto",
-			fontSize: "20px",
-		},
-
-		textAreaStyles: { width: "100%", fontSize: "30px", padding: "10px" },
-		line: {
-			height: "2px",
-			width: "100%",
-			backgroundColor: "black",
-			marginBottom: "20px",
-		},
-	})
-
 	const classes = useStyles()
+	const history = useHistory()
 
 	const [idx, setIdx] = React.useState(0)
 	const [charIdx, setCharIdx] = React.useState(0)
@@ -67,6 +78,12 @@ export const Typer = (props: Props) => {
 		if (!start) return
 		if (seconds > 0) {
 			setTimeout(() => setSeconds(seconds - 1), 1000)
+
+			// if (seconds < 55) {
+			// 	clearTimeout(ss(() => {}))
+			// 	setSeconds(60)
+			// 	setStart(false)
+			// }
 		} else {
 			setFinish(true)
 		}
@@ -104,6 +121,16 @@ export const Typer = (props: Props) => {
 
 	const handleRestart = () => {
 		window.location.reload()
+		// history.action.
+		// props.setWords(genWords())
+		// setStart(false)
+		// setFinish(false)
+		// setWord("")
+		// setIdx(0)
+		// setCharIdx(0)
+		// setWrongWords(0)
+		// setCorrectWords(0)
+		// setSeconds(60)
 	}
 
 	const handleKeyPress = (key: any) => {
@@ -114,6 +141,7 @@ export const Typer = (props: Props) => {
 		setCharIdx(charIdx + 1)
 
 		if (key.code === "Space") {
+			if (word === "") return
 			setWord("")
 			setIdx(idx + 1)
 			setCharIdx(0)
@@ -140,7 +168,7 @@ export const Typer = (props: Props) => {
 	const getColour = (status: "correct" | "incorrect" | "eh") => {
 		if (status === "correct") return "green"
 		if (status === "incorrect") return "red"
-		if (status === "eh") return "black"
+		if (status === "eh") return "#373737"
 	}
 
 	const onCurrWord = (currIdx: number) => idx === currIdx
@@ -194,18 +222,24 @@ export const Typer = (props: Props) => {
 	}, [idx])
 
 	return (
-		<Container>
+		<Container style={{}}>
 			{!finish ? (
 				<>
+					<div className={classes.timer}>
+						<Typography className={classes.timerText} variant="h3">
+							{seconds}
+						</Typography>
+					</div>
 					<div className={classes.typingArea} id={DISPLAY_ID}>
 						<Typography variant="subtitle1">
 							{props.words.map((w, i) => (
 								<React.Fragment key={i}>
 									<span
 										style={{
+											padding: "5px",
+											backgroundColor: onCurrWord(i) ? "#d7d9ff" : "",
 											color: getColour(w.status),
-											textDecoration: onCurrWord(i) ? "underline" : "unset",
-											fontSize: "40px",
+											fontSize: "35px",
 											fontWeight: onCurrWord(i) ? "bold" : "unset",
 										}}
 										key={i}
@@ -223,15 +257,9 @@ export const Typer = (props: Props) => {
 						onKeyDown={handleBackSpace}
 						value={word}
 						onChange={(e) => setWord(e.target.value.trim())}
-						name=""
-						id=""
 						placeholder={idx === 0 ? "Start Typing!" : ""}
 					></textarea>
-					<div>
-						<Typography variant="h3">{seconds}</Typography>
-						{/* <Typography variant="subtitle1">correct words: {correctWords}</Typography> */}
-						{/* <Typography variant="subtitle1">wrong words: {wrongWords}</Typography> */}
-					</div>
+					<Button onClick={handleRestart}>Reset</Button>
 				</>
 			) : (
 				<div>
@@ -256,7 +284,8 @@ export const Typer = (props: Props) => {
 interface Props {
 	words: TestWord[]
 	setWords: (t: TestWord[]) => void
-
+	theme: "dark" | "light"
+	setTheme: (s: "dark" | "light") => void
 	scrollHeight: number
 	setScrollHeight: (h: number) => void
 }
@@ -264,6 +293,7 @@ export const TyperWrapper = (props: Props) => {
 	const {} = props
 	const [words, setWords] = React.useState(genWords())
 	const [scrollHeight, setScrollHeight] = React.useState(0)
+	const [theme, setTheme] = React.useState<"dark" | "light">("light")
 
-	return <Typer scrollHeight={scrollHeight} setScrollHeight={setScrollHeight} words={words} setWords={setWords} />
+	return <Typer setTheme={setTheme} theme={theme} scrollHeight={scrollHeight} setScrollHeight={setScrollHeight} words={words} setWords={setWords} />
 }
